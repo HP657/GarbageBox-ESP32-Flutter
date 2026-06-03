@@ -14,44 +14,9 @@ class _HomeScreenState extends State<HomeScreen> {
   double _garbageLevel = 0.72; // 72%
   bool _isLidOpen = false;
   DateTime _lastUpdated = DateTime(2026, 6, 3, 21, 30);
-  String _sealingStatus = '대기 중'; // 대기 중, 실링 중, 실링 완료
-  bool _isSealing = false;
+  final String _sealingStatus = '대기 중'; // TODO: 이 값은 실제 장치 상태에 따라 업데이트되어야 합니다.
 
   // TODO: 실시간 상태 갱신 (BLE 서비스로부터 데이터를 받아 상태를 업데이트)
-
-  void _handleSealing() async {
-    if (_isSealing) return;
-
-    setState(() {
-      _isSealing = true;
-      _sealingStatus = '실링 중...';
-    });
-
-    // 실링 과정 시뮬레이션 (3초)
-    await Future.delayed(const Duration(seconds: 3));
-
-    setState(() {
-      _sealingStatus = '실링 완료';
-      _garbageLevel = 0.0; // 쓰레기통 비우기
-      _lastUpdated = DateTime.now();
-    });
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('쓰레기 봉투 실링 및 교체가 완료되었습니다.'),
-          duration: Duration(seconds: 3),
-        ),
-      );
-    }
-
-    // 5초 후 다시 대기 상태로 변경
-    await Future.delayed(const Duration(seconds: 5));
-    setState(() {
-      _sealingStatus = '대기 중';
-      _isSealing = false;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icons.autorenew,
               title: '실링 상태',
               content: _sealingStatus,
-              color: _isSealing ? Theme.of(context).colorScheme.primary : Colors.grey,
+              color: Colors.grey,
             ),
             const SizedBox(height: 16),
             _buildStatusCard(
@@ -94,44 +59,21 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const Spacer(),
             // TODO: BLE 스캔 및 연결 버튼 구현
-            Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 50,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.bluetooth_searching),
-                      onPressed: () {
-                        // TODO: BLE 스캔 기능
-                        // TODO: BLE 자동 연결
-                      },
-                      label: const Text('장치 연결'),
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
+            SizedBox(
+              height: 50,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.bluetooth_searching),
+                onPressed: () {
+                  // TODO: BLE 스캔 기능
+                  // TODO: BLE 자동 연결
+                },
+                label: const Text('장치에 연결'),
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: SizedBox(
-                    height: 50,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.settings),
-                      onPressed: _isSealing ? null : _handleSealing,
-                      label: const Text('실링 시작'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orangeAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ],
         ),
