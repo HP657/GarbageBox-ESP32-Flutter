@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:garbagebox_esp/screens/home_screen.dart';
+import 'screens/home_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,14 +11,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Garbage Box',
+      title: 'Smart Bin',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
         fontFamily: 'Pretendard',
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+        ),
       ),
       home: const HomeScreen(),
-      debugShowCheckedModeBanner: false,
     );
   }
 }
