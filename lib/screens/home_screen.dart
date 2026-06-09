@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
-import 'dart:math';
 import '../services/ble_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,7 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final BleService _bleService = BleService();
 
   // 더미 데이터 사용 여부 플래그
-  final bool _useDummyData = true;
+  final bool _useDummyData = false;
   Timer? _dummyDataTimer;
   int _dummyDataIndex = 0;
   final List<String> _dummyData = [
@@ -155,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withAlpha((255 * 0.2).round()),
               spreadRadius: 2,
               blurRadius: 10,
               offset: const Offset(0, 5),
@@ -189,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "${percentage}%",
+                    "$percentage%",
                     style: theme.textTheme.headlineLarge?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
