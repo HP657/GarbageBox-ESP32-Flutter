@@ -6,9 +6,13 @@ class BleService {
   final StreamController<String> _controller = StreamController.broadcast();
   Stream<String> get messages => _controller.stream;
 
+  final StreamController<bool> _connectionStatusController = StreamController.broadcast();
+  Stream<bool> get connectionStatus => _connectionStatusController.stream;
+
   BluetoothDevice? _targetDevice;
   StreamSubscription? _scanSubscription;
   StreamSubscription? _dataSubscription;
+  StreamSubscription? _connectionStateSubscription;
 
   Future<void> connect() async {
     try {
@@ -31,6 +35,15 @@ class BleService {
             // 🔴 기기 연결 (최신 패키지 정책에 따른 필수 license 매개변수 추가)
             await _targetDevice!.connect(license: License.nonprofit);
             print("✅ ESP32 연결 성공! 서비스 탐색 중...");
+            _connectionStatusController.add(true);
+
+            _connectionStateSubscription = _targetDevice!.connectionState.listen((state) {
+              if (state == BluetoothConnectionState.disconnected) {
+                _connectionStatusController.add(false);
+                print("🔌 블루투스 연결 끊김 (외부 요인)");
+                _dataSubscription?.cancel();
+              }
+            });
 
             // 서비스 및 캐릭터리스틱 찾기
             List<BluetoothService> services = await _targetDevice!.discoverServices();
@@ -59,6 +72,7 @@ class BleService {
         }
       });
     } catch (e) {
+      _connectionStatusController.add(false);
       throw Exception("BLE 에러 발생: $e");
     }
   }
@@ -67,6 +81,16 @@ class BleService {
     await _targetDevice?.disconnect();
     _scanSubscription?.cancel();
     _dataSubscription?.cancel();
+    _connectionStateSubscription?.cancel();
+    _connectionStatusController.add(false);
     print("❌ 블루투스 연결 해제됨");
+  }
+
+  void dispose() {
+    _controller.close();
+    _connectionStatusController.close();
+    _scanSubscription?.cancel();
+    _dataSubscription?.cancel();
+    _connectionStateSubscription?.cancel();
   }
 }

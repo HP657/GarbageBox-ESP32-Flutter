@@ -45,6 +45,23 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     } else {
       // 실제 BLE 데이터 사용 및 자동 연결
+      _bleService.connectionStatus.listen((isConnected) {
+        if (mounted) {
+          setState(() {
+            _isConnected = isConnected;
+          });
+
+          if (!isConnected) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("장치와의 연결이 끊어졌습니다."),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        }
+      });
+
       _bleService.messages.listen((message) {
         _updateStateWithData(message);
       });
@@ -57,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // 위젯이 종료될 때 타이머 해제
     _dummyDataTimer?.cancel();
     _bleService.disconnect(); // 연결 해제 로직 추가
+    _bleService.dispose();
     super.dispose();
   }
 
@@ -69,7 +87,6 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLidOpen = data[1] == "1";
         _sealingStatus = data[2];
         _lastUpdated = DateTime.now();
-        _isConnected = true; // 데이터 수신 시 연결된 것으로 간주
       });
     } catch (_) {}
   }
