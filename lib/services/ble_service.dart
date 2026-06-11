@@ -42,6 +42,12 @@ class BleService {
                 _connectionStatusController.add(false);
                 print("🔌 블루투스 연결 끊김 (외부 요인)");
                 _dataSubscription?.cancel();
+
+                // Add a small delay before attempting to reconnect
+                Future.delayed(const Duration(seconds: 2)).then((_) {
+                  print("🔁 자동 재연결 시도...");
+                  connect(); // Re-run the entire connection process
+                });
               }
             });
 
